@@ -36,7 +36,7 @@ const getListOfBooks = () => {
 public_users.get("/", (req, res) => {
   getListOfBooks()
     .then((books) => {
-      return res.status(200).json(JSON.stringify(books, null, 4));
+      return res.status(200).send(books);
     })
     .catch((error) => {
       res.status(404).json(error);
@@ -69,15 +69,19 @@ public_users.get("/isbn/:isbn", (req, res) => {
 //Promise Callback to get book details by author name
 const getBooksDetailsByAuthor = (req) => {
   return new Promise((resolve, reject) => {
-    let booksByAuthor = [];
     let author = req.params.author;
+    let booksByAuthor = { [author]: [] };
     keyList = Object.keys(books);
     keyList.forEach(function (key) {
       if (books[key].author === author) {
-        booksByAuthor.push(books[key]);
+        booksByAuthor[author].push({
+          isbn: key,
+          title: books[key].title,
+          reviews: books[key].reviews,
+        });
       }
     });
-    if (booksByAuthor.length > 0) {
+    if (booksByAuthor[author].length > 0) {
       resolve(booksByAuthor);
     } else {
       reject({ message: "No book found for requested author" });
@@ -99,15 +103,19 @@ public_users.get("/author/:author", function (req, res) {
 //Promise Callback to get book details by book title
 const getBooksDetailsByTitle = (req) => {
   return new Promise((resolve, reject) => {
-    let booksByTitle = [];
     let title = req.params.title;
+    let booksByTitle = { [title]: [] };
     keyList = Object.keys(books);
     keyList.forEach(function (key) {
       if (books[key].title === title) {
-        booksByTitle.push(books[key]);
+        booksByTitle[title].push({
+          isbn: key,
+          author: books[key].author,
+          reviews: books[key].reviews,
+        });
       }
     });
-    if (booksByTitle.length > 0) {
+    if (booksByTitle[title].length > 0) {
       resolve(booksByTitle);
     } else {
       reject({ message: "No book found for requested author" });
